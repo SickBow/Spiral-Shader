@@ -1,0 +1,30 @@
+#define pi 3.141592653589
+
+vec3 drawSpiral(vec2 uv, vec3 col, float thickness){
+	   
+    float lim = 12.*pi;
+    float growth = sqrt(2.);
+    float theta = ( pi*log(length(uv)) )/(2.*log(growth) ); //angle of spiral for length of UV vector with spiral being r(theta)
+    vec2 spiral = pow(growth,2./pi * theta)*vec2(cos(theta),sin(theta));
+    
+    if( abs(dot(normalize(uv),normalize(spiral))-1.) < .01 && abs(length(uv)-length(spiral)) < thickness  ){
+     col = vec3(1.)*smoothstep(thickness,0.,abs(length(uv)-length(spiral)));   
+    }
+    
+    return col;
+}
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    // Normalized pixel coordinates (from 0 to 1)
+    vec2 uv = 2.*(fragCoord-iResolution.xy*.5)/iResolution.y;
+	uv/=fract(iTime);
+    
+    // Time varying pixel color
+    vec3 col = vec3(0.);
+
+    //col = shape(uv, col, vec2(0.45, 0.25), 1., vec3(1.),  .0125);
+    col = drawSpiral(uv, col, .1);
+    // Output to screen
+    fragColor = vec4(col,1.0);
+}
